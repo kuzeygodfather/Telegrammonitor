@@ -20,6 +20,11 @@ const CATEGORY_LABELS: Record<string, string> = {
   info: "Bilgi",
   praise: "Ovgu",
   request: "Talep",
+  financial: "Finansal",
+  staff: "Personel",
+  customer: "Musteri",
+  technical: "Teknik",
+  decision: "Karar",
 };
 
 const PIE_COLORS = ["#3B82F6", "#EF4444", "#22C55E", "#F59E0B", "#8B5CF6", "#EC4899"];

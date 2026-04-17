@@ -31,16 +31,13 @@ class TelegramListener:
         logger.info(f"Yuklenen anahtar kelime sayisi: {len(self._keywords)}")
 
     def refresh_keywords(self):
-        """Disaridan keyword cache'i yenilemek icin."""
         self._load_keywords()
 
     def _load_monitored_groups(self):
-        """DB'den izlenen gruplari yukle."""
         result = self.db.table("groups").select("id").eq("is_monitored", True).execute()
         self._monitored_groups = {row["id"] for row in result.data}
 
     def refresh_groups(self):
-        """Disaridan group cache'i yenilemek icin."""
         self._load_monitored_groups()
 
     def _check_keywords(self, text: str) -> list[str]:
@@ -56,6 +53,7 @@ class TelegramListener:
         result = self.db.table("groups").select("id").execute()
         existing_ids = {row["id"] for row in result.data}
 
+        count = 0
         async for dialog in self.client.iter_dialogs():
             entity = dialog.entity
             if isinstance(entity, (Channel, Chat)):
@@ -73,17 +71,17 @@ class TelegramListener:
                     }).eq("id", chat_id).execute()
                 else:
                     self.db.table("groups").insert(group_data).execute()
+                count += 1
 
         self._load_monitored_groups()
-        logger.info(f"Senkronize edilen grup sayisi: {len(self._monitored_groups)}")
+        logger.info(f"Toplam {count} grup senkronize edildi, {len(self._monitored_groups)} izleniyor")
 
     async def start(self):
-        """Telethon client'i baslat ve mesajlari dinle."""
+        """Telethon client'i baslat ve TUM mesajlari dinle."""
         self._running = True
         await self.client.start()
         logger.info("Telegram client basladi")
 
-        # Gruplari senkronize et
         await self._sync_groups()
         self._load_keywords()
 
@@ -99,12 +97,11 @@ class TelegramListener:
                     return
 
                 text = event.message.text or ""
-                if not text.strip():
+                if not text.strip() or len(text.strip()) < 3:
                     return
 
+                # Keyword kontrolu
                 matched = self._check_keywords(text)
-                if not matched:
-                    return
 
                 # Sender bilgisi
                 sender = await event.get_sender()
@@ -118,7 +115,11 @@ class TelegramListener:
                         sender_name = getattr(sender, "title", "Bilinmeyen")
                     sender_id = sender.id
 
-                # Supabase'e kaydet
+                # Grup basligi
+                group_result = self.db.table("groups").select("title").eq("id", chat_id).single().execute()
+                group_title = group_result.data["title"] if group_result.data else "Bilinmeyen"
+
+                # TUM mesajlari DB'ye kaydet
                 msg_data = {
                     "telegram_msg_id": event.message.id,
                     "group_id": chat_id,
@@ -126,16 +127,12 @@ class TelegramListener:
                     "sender_id": sender_id,
                     "text": text,
                     "date": str(event.message.date),
-                    "matched_keywords": matched,
+                    "matched_keywords": matched,  # Eslesen keywordler varsa isaretler
                 }
                 result = self.db.table("messages").insert(msg_data).execute()
                 msg_id = result.data[0]["id"]
 
-                # Grup basligini al
-                group_result = self.db.table("groups").select("title").eq("id", chat_id).single().execute()
-                group_title = group_result.data["title"] if group_result.data else "Bilinmeyen"
-
-                # Queue'ya at (analyzer icin)
+                # Queue'ya at - AI analiz edecek
                 await self.message_queue.put({
                     "message_id": msg_id,
                     "group_id": chat_id,
@@ -143,19 +140,21 @@ class TelegramListener:
                     "sender_name": sender_name,
                     "text": text,
                     "matched_keywords": matched,
+                    "has_keyword": len(matched) > 0,
                     "date": str(event.message.date),
                 })
-                logger.info(
-                    f"Mesaj yakalandi: [{group_title}] {sender_name}: {text[:50]}..."
-                )
+
+                if matched:
+                    logger.info(f"KEYWORD [{', '.join(matched)}] [{group_title}] {sender_name}: {text[:60]}...")
+                else:
+                    logger.debug(f"[{group_title}] {sender_name}: {text[:60]}...")
 
             except Exception as e:
                 logger.error(f"Mesaj isleme hatasi: {e}", exc_info=True)
 
-        logger.info("Mesaj dinleme baslatildi")
+        logger.info("Dinleme baslatildi: TUM mesajlar + keyword vurgulama aktif")
         await self.client.run_until_disconnected()
 
     def stop(self):
-        """Client'i durdur."""
         self._running = False
         self.client.disconnect()

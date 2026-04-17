@@ -24,9 +24,15 @@ export interface Analysis {
   id: number;
   summary: string;
   sentiment: "positive" | "negative" | "neutral" | "urgent";
-  category: "complaint" | "mention" | "issue" | "info" | "praise" | "request";
+  category: "complaint" | "mention" | "issue" | "info" | "praise" | "request" | "financial" | "staff" | "customer" | "technical" | "decision";
   urgency: number;
-  details?: Record<string, unknown>;
+  details?: {
+    topic?: string;
+    relevant_to_manager?: boolean;
+    action_needed?: boolean;
+    action_description?: string;
+    [key: string]: unknown;
+  };
 }
 
 export interface Alert {
