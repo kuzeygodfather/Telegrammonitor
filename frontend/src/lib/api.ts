@@ -129,6 +129,75 @@ export async function markAllAlertsRead() {
   return supabase.from("alerts").update({ is_read: true }).eq("is_read", false);
 }
 
+// ========== Replies ==========
+
+export async function sendReply(groupId: number, text: string, replyToMsgId?: number) {
+  return supabase.from("replies").insert({
+    group_id: groupId,
+    reply_to_msg_id: replyToMsgId || null,
+    text,
+  });
+}
+
+// ========== Detailed Alerts ==========
+
+export async function getDetailedAlerts(params?: {
+  is_read?: boolean;
+  urgency_min?: number;
+  page?: number;
+}) {
+  const page = params?.page ?? 1;
+  const limit = 20;
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  let query = supabase
+    .from("alerts")
+    .select("*, groups(title), analyses(*, messages(*))", { count: "exact" });
+
+  if (params?.is_read !== undefined) query = query.eq("is_read", params.is_read);
+  if (params?.urgency_min) query = query.gte("urgency", params.urgency_min);
+
+  const { data, count } = await query
+    .order("created_at", { ascending: false })
+    .range(from, to);
+
+  return {
+    total: count ?? 0,
+    page,
+    limit,
+    items: (data ?? []).map((row: Record<string, unknown>) => {
+      const groups = row.groups as Record<string, string> | null;
+      const analyses = row.analyses as Record<string, unknown> | null;
+      const messages = analyses?.messages as Record<string, unknown> | null;
+      return {
+        id: row.id,
+        group_id: row.group_id,
+        group_title: groups?.title ?? "?",
+        title: row.title,
+        description: row.description,
+        urgency: row.urgency,
+        is_read: row.is_read,
+        created_at: row.created_at as string,
+        // Detayli bilgiler
+        sender_name: messages?.sender_name ?? null,
+        sender_id: messages?.sender_id ?? null,
+        original_text: messages?.text ?? null,
+        telegram_msg_id: messages?.telegram_msg_id ?? null,
+        message_date: messages?.date ?? null,
+        matched_keywords: messages?.matched_keywords ?? [],
+        // Analiz detaylari
+        summary: analyses?.summary ?? null,
+        sentiment: analyses?.sentiment ?? null,
+        category: analyses?.category ?? null,
+        topic: (analyses?.details as Record<string, unknown>)?.topic ?? null,
+        action_needed: (analyses?.details as Record<string, unknown>)?.action_needed ?? false,
+        action_description: (analyses?.details as Record<string, unknown>)?.action_description ?? null,
+      };
+    }),
+  };
+}
+
 // ========== Groups ==========
 
 export async function getGroups(): Promise<Group[]> {
