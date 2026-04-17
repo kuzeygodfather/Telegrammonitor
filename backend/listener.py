@@ -5,6 +5,7 @@ from telethon import TelegramClient, events
 from telethon.tl.types import Channel, Chat, User
 from config import config
 from database import get_db
+from prefilter import should_skip
 
 logger = logging.getLogger(__name__)
 
@@ -97,11 +98,15 @@ class TelegramListener:
                     return
 
                 text = event.message.text or ""
-                if not text.strip() or len(text.strip()) < 3:
+                if not text.strip():
                     return
 
-                # Keyword kontrolu
+                # Keyword kontrolu (keyword varsa filtre atlaniyor)
                 matched = self._check_keywords(text)
+
+                # Yerel on-filtre: keyword yoksa gereksiz mesajlari ele
+                if not matched and should_skip(text):
+                    return
 
                 # Sender bilgisi
                 sender = await event.get_sender()
