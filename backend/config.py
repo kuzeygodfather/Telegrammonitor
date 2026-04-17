@@ -7,15 +7,23 @@ env_path = Path(__file__).parent.parent / ".env"
 load_dotenv(env_path)
 
 
+def _int(key: str, default: int = 0) -> int:
+    """Bos string'de patlamayan int donusturucu."""
+    val = os.getenv(key, "")
+    if not val or not val.strip():
+        return default
+    return int(val)
+
+
 class Config:
     # Telegram User Client
-    TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "0"))
+    TELEGRAM_API_ID = _int("TELEGRAM_API_ID")
     TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "")
     TELEGRAM_SESSION_PATH = os.getenv("TELEGRAM_SESSION_PATH", "../session.session")
 
     # Telegram Bot
     TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
-    TELEGRAM_ADMIN_CHAT_ID = int(os.getenv("TELEGRAM_ADMIN_CHAT_ID", "0"))
+    TELEGRAM_ADMIN_CHAT_ID = _int("TELEGRAM_ADMIN_CHAT_ID")
 
     # Claude API
     ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
@@ -25,14 +33,14 @@ class Config:
     SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "")
 
     # Analysis
-    ANALYSIS_BATCH_SIZE = int(os.getenv("ANALYSIS_BATCH_SIZE", "10"))
-    ANALYSIS_BATCH_TIMEOUT = int(os.getenv("ANALYSIS_BATCH_TIMEOUT", "30"))
+    ANALYSIS_BATCH_SIZE = _int("ANALYSIS_BATCH_SIZE", 20)
+    ANALYSIS_BATCH_TIMEOUT = _int("ANALYSIS_BATCH_TIMEOUT", 60)
 
     # Scheduler
-    DAILY_SUMMARY_HOUR = int(os.getenv("DAILY_SUMMARY_HOUR", "9"))
+    DAILY_SUMMARY_HOUR = _int("DAILY_SUMMARY_HOUR", 9)
 
     # Alerts
-    ALERT_URGENCY_THRESHOLD = int(os.getenv("ALERT_URGENCY_THRESHOLD", "4"))
+    ALERT_URGENCY_THRESHOLD = _int("ALERT_URGENCY_THRESHOLD", 3)
 
     # Timezone
     TIMEZONE = "Europe/Istanbul"
