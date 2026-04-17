@@ -9,6 +9,7 @@ import {
   FileText,
   Settings,
   Radio,
+  Wrench,
 } from "lucide-react";
 
 const nav = [
@@ -17,6 +18,7 @@ const nav = [
   { href: "/groups", label: "Gruplar", icon: Users },
   { href: "/reports", label: "Raporlar", icon: FileText },
   { href: "/settings", label: "Ayarlar", icon: Settings },
+  { href: "/setup", label: "Kurulum", icon: Wrench },
 ];
 
 export default function Sidebar({ unreadAlerts = 0 }: { unreadAlerts?: number }) {
