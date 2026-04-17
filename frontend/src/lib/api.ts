@@ -137,20 +137,21 @@ export async function getGroups(): Promise<Group[]> {
 }
 
 export async function toggleGroupMonitoring(id: number): Promise<Group> {
-  const { data: current } = await supabase
+  const { data: rows } = await supabase
     .from("groups")
     .select("is_monitored")
-    .eq("id", id)
-    .single();
+    .eq("id", id);
+
+  const current = rows?.[0];
+  if (!current) throw new Error("Grup bulunamadi");
 
   const { data } = await supabase
     .from("groups")
-    .update({ is_monitored: !current?.is_monitored })
+    .update({ is_monitored: !current.is_monitored })
     .eq("id", id)
-    .select()
-    .single();
+    .select();
 
-  return data as Group;
+  return (data?.[0] ?? current) as Group;
 }
 
 // ========== Keywords ==========
@@ -173,14 +174,16 @@ export async function deleteKeyword(id: number) {
 }
 
 export async function toggleKeyword(id: number) {
-  const { data: current } = await supabase
+  const { data: rows } = await supabase
     .from("keywords")
     .select("is_active")
-    .eq("id", id)
-    .single();
+    .eq("id", id);
+
+  const current = rows?.[0];
+  if (!current) return;
 
   return supabase
     .from("keywords")
-    .update({ is_active: !current?.is_active })
+    .update({ is_active: !current.is_active })
     .eq("id", id);
 }
