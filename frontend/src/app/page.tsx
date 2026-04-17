@@ -24,7 +24,16 @@ export default function DashboardPage() {
         setAlerts(a);
         setMessages(m);
       })
-      .catch(console.error)
+      .catch(() => {
+        // Supabase baglantisi var ama henuz veri yok - bos dashboard goster
+        setStats({
+          total_messages_today: 0,
+          total_alerts: 0,
+          unread_alerts: 0,
+          active_groups: 0,
+          messages_by_hour: [],
+        });
+      })
       .finally(() => setLoading(false));
   }, []);
 

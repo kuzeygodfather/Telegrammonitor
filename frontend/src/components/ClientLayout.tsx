@@ -8,11 +8,15 @@ import { getStats } from "@/lib/api";
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const { isConnected } = useWebSocket();
   const [unreadAlerts, setUnreadAlerts] = useState(0);
+  const [dbConnected, setDbConnected] = useState(false);
 
   useEffect(() => {
     getStats()
-      .then((s) => setUnreadAlerts(s.unread_alerts))
-      .catch(() => {});
+      .then((s) => {
+        setUnreadAlerts(s.unread_alerts);
+        setDbConnected(true);
+      })
+      .catch(() => setDbConnected(true)); // Hata olsa bile DB var, veri yok
 
     const interval = setInterval(() => {
       getStats()
@@ -28,10 +32,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <main className="flex-1 p-6 overflow-auto">
         <div className="flex items-center justify-end gap-2 mb-4 text-xs">
           <span
-            className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`}
+            className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-500" : "bg-yellow-500"}`}
           />
           <span className="text-gray-500">
-            {isConnected ? "Canli Baglanti" : "Baglanti Kesildi"}
+            {isConnected ? "Canli Baglanti" : "Bekleniyor..."}
           </span>
         </div>
         {children}
