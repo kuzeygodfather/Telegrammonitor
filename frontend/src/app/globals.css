@@ -1,0 +1,290 @@
+@import "tailwindcss";
+
+:root {
+  --background: #030712;
+  --foreground: #f3f4f6;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Toast animation */
+@keyframes slide-in {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+
+/* ============================== */
+/* LIGHT THEME OVERRIDES          */
+/* ============================== */
+
+[data-theme="light"] {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+}
+
+/* ---- Body & Base ---- */
+[data-theme="light"] body {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* ---- Background overrides ---- */
+[data-theme="light"] .bg-gray-950 { background-color: #f8fafc !important; }
+[data-theme="light"] .bg-gray-900 { background-color: #f1f5f9 !important; }
+[data-theme="light"] .bg-gray-800 { background-color: #ffffff !important; }
+[data-theme="light"] .bg-gray-700 { background-color: #e2e8f0 !important; }
+[data-theme="light"] .bg-\[\#0a0a12\] { background-color: #ffffff !important; }
+[data-theme="light"] .bg-\[\#0d0d18\] { background-color: #ffffff !important; }
+[data-theme="light"] .bg-gray-900\/50 { background-color: rgba(241,245,249,0.5) !important; }
+[data-theme="light"] .bg-gray-700\/30 { background-color: rgba(226,232,240,0.3) !important; }
+[data-theme="light"] .bg-gray-700\/50 { background-color: rgba(226,232,240,0.5) !important; }
+[data-theme="light"] .bg-gray-700\/20 { background-color: rgba(226,232,240,0.2) !important; }
+[data-theme="light"] .bg-white\/5 { background-color: rgba(0,0,0,0.03) !important; }
+[data-theme="light"] .bg-white\/10 { background-color: rgba(0,0,0,0.06) !important; }
+[data-theme="light"] .bg-white\/\[0\.02\] { background-color: rgba(0,0,0,0.02) !important; }
+
+/* ---- Text overrides ---- */
+[data-theme="light"] .text-gray-100 { color: #0f172a !important; }
+[data-theme="light"] .text-gray-200 { color: #1e293b !important; }
+[data-theme="light"] .text-gray-300 { color: #334155 !important; }
+[data-theme="light"] .text-gray-400 { color: #64748b !important; }
+[data-theme="light"] .text-gray-500 { color: #94a3b8 !important; }
+[data-theme="light"] .text-gray-600 { color: #cbd5e1 !important; }
+[data-theme="light"] .text-white { color: #ffffff !important; }
+
+/* ---- Border overrides ---- */
+[data-theme="light"] .border-gray-700 { border-color: #e2e8f0 !important; }
+[data-theme="light"] .border-gray-700\/50 { border-color: rgba(226,232,240,0.5) !important; }
+[data-theme="light"] .border-gray-800 { border-color: #f1f5f9 !important; }
+[data-theme="light"] .border-gray-600 { border-color: #cbd5e1 !important; }
+[data-theme="light"] .border-gray-600\/50 { border-color: rgba(203,213,225,0.5) !important; }
+[data-theme="light"] .border-white\/5 { border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .border-white\/10 { border-color: rgba(0,0,0,0.1) !important; }
+
+/* ---- Divide ---- */
+[data-theme="light"] .divide-white\/5 > * + * { border-color: rgba(0,0,0,0.08) !important; }
+
+/* ---- Input / Form ---- */
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* ---- Scrollbar ---- */
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8 !important;
+}
+
+/* ---- Sticky columns in tables ---- */
+[data-theme="light"] .sticky { background-color: #ffffff !important; }
+[data-theme="light"] thead .sticky { background-color: #f1f5f9 !important; }
+[data-theme="light"] thead tr { background-color: #f1f5f9 !important; }
+[data-theme="light"] tbody tr:hover { background-color: rgba(241,245,249,0.5) !important; }
+
+/* ---- Cards with colored backgrounds (keep readable) ---- */
+[data-theme="light"] .bg-blue-600\/10 { background-color: rgba(37,99,235,0.08) !important; }
+[data-theme="light"] .bg-blue-600\/20 { background-color: rgba(37,99,235,0.1) !important; }
+[data-theme="light"] .bg-red-600\/10 { background-color: rgba(220,38,38,0.08) !important; }
+[data-theme="light"] .bg-red-600\/30 { background-color: rgba(220,38,38,0.12) !important; }
+[data-theme="light"] .bg-green-600\/10 { background-color: rgba(22,163,74,0.08) !important; }
+[data-theme="light"] .bg-green-600\/20 { background-color: rgba(22,163,74,0.1) !important; }
+[data-theme="light"] .bg-purple-600\/10 { background-color: rgba(147,51,234,0.08) !important; }
+[data-theme="light"] .bg-purple-600\/20 { background-color: rgba(147,51,234,0.1) !important; }
+[data-theme="light"] .bg-orange-600\/20 { background-color: rgba(234,88,12,0.1) !important; }
+[data-theme="light"] .bg-cyan-600\/20 { background-color: rgba(8,145,178,0.1) !important; }
+[data-theme="light"] .bg-yellow-600\/20 { background-color: rgba(202,138,4,0.1) !important; }
+[data-theme="light"] .bg-indigo-600\/20 { background-color: rgba(79,70,229,0.1) !important; }
+[data-theme="light"] .bg-green-900\/30 { background-color: rgba(22,163,74,0.1) !important; }
+[data-theme="light"] .bg-red-500\/10 { background-color: rgba(239,68,68,0.08) !important; }
+[data-theme="light"] .bg-amber-500\/10 { background-color: rgba(245,158,11,0.08) !important; }
+[data-theme="light"] .bg-orange-500\/10 { background-color: rgba(249,115,22,0.08) !important; }
+[data-theme="light"] .bg-sky-500\/10 { background-color: rgba(14,165,233,0.08) !important; }
+[data-theme="light"] .bg-blue-500\/10 { background-color: rgba(59,130,246,0.08) !important; }
+[data-theme="light"] .bg-blue-900\/30 { background-color: rgba(59,130,246,0.08) !important; }
+[data-theme="light"] .bg-orange-900\/20 { background-color: rgba(249,115,22,0.08) !important; }
+[data-theme="light"] .bg-green-900\/20 { background-color: rgba(22,163,74,0.08) !important; }
+
+/* ---- Backdrop / Overlays ---- */
+[data-theme="light"] .bg-black\/60 { background-color: rgba(0,0,0,0.4) !important; }
+[data-theme="light"] .bg-black\/50 { background-color: rgba(0,0,0,0.3) !important; }
+[data-theme="light"] .bg-blue-600\/20.backdrop-blur-sm { background-color: rgba(59,130,246,0.1) !important; }
+
+/* ---- Shadows for cards in light mode ---- */
+[data-theme="light"] .rounded-xl,
+[data-theme="light"] .rounded-2xl {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+
+/* ---- Recharts / Charts ---- */
+[data-theme="light"] .recharts-cartesian-grid line { stroke: #e2e8f0 !important; }
+[data-theme="light"] .recharts-text { fill: #64748b !important; }
+[data-theme="light"] .recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* ---- Code blocks ---- */
+[data-theme="light"] code { background-color: #f1f5f9 !important; color: #334155 !important; }
+
+/* ---- Blue active sidebar indicator ---- */
+[data-theme="light"] .bg-blue-600\/10 { background-color: rgba(37,99,235,0.06) !important; }
+
+/* ---- Print stays dark ---- */
+@media print {
+  [data-theme="light"] { --background: #ffffff; --foreground: #000000; }
+}
+
+
+/* ---- Additional Light Theme Fixes ---- */
+
+/* White text on white bg fix */
+[data-theme="light"] .text-white { color: #0f172a !important; }
+[data-theme="light"] button.bg-blue-600 .text-white,
+[data-theme="light"] button.bg-green-600 .text-white,
+[data-theme="light"] button.bg-purple-600 .text-white,
+[data-theme="light"] button.bg-red-600 .text-white,
+[data-theme="light"] .bg-blue-600 { color: #ffffff !important; }
+[data-theme="light"] .bg-green-600 { color: #ffffff !important; }
+[data-theme="light"] .bg-purple-600 { color: #ffffff !important; }
+[data-theme="light"] .bg-red-600 { color: #ffffff !important; }
+
+/* Fix text on colored buttons - keep white */
+[data-theme="light"] button.bg-blue-600,
+[data-theme="light"] button.bg-green-600,
+[data-theme="light"] button.bg-purple-600,
+[data-theme="light"] button.bg-red-600,
+[data-theme="light"] button.bg-orange-600,
+[data-theme="light"] .bg-blue-600.text-white,
+[data-theme="light"] .bg-green-600.text-white,
+[data-theme="light"] .bg-purple-600.text-white {
+  color: #ffffff !important;
+}
+
+/* Fix: white/5 white/10 text and borders */
+[data-theme="light"] .text-white\/20 { color: rgba(0,0,0,0.2) !important; }
+[data-theme="light"] .bg-white\/\[0\.02\] { background-color: #ffffff !important; border: 1px solid #e2e8f0 !important; }
+[data-theme="light"] .bg-white\/\[0\.03\] { background-color: rgba(241,245,249,0.5) !important; }
+
+/* Active tab buttons keep white text */
+[data-theme="light"] button.bg-blue-600 { color: #fff !important; }
+
+/* Toggle switches */
+[data-theme="light"] .bg-blue-600 div.rounded-full.bg-white { background-color: #ffffff !important; }
+
+/* Sidebar text */
+[data-theme="light"] .text-blue-400 { color: #2563eb !important; }
+[data-theme="light"] .text-green-400 { color: #16a34a !important; }
+[data-theme="light"] .text-red-400 { color: #dc2626 !important; }
+[data-theme="light"] .text-orange-400 { color: #ea580c !important; }
+[data-theme="light"] .text-purple-400 { color: #9333ea !important; }
+[data-theme="light"] .text-cyan-400 { color: #0891b2 !important; }
+[data-theme="light"] .text-amber-400 { color: #d97706 !important; }
+[data-theme="light"] .text-sky-400 { color: #0284c7 !important; }
+[data-theme="light"] .text-pink-400 { color: #db2777 !important; }
+[data-theme="light"] .text-emerald-400 { color: #059669 !important; }
+[data-theme="light"] .text-indigo-400 { color: #6366f1 !important; }
+[data-theme="light"] .text-yellow-400 { color: #ca8a04 !important; }
+
+/* Gray text adjustments for readability */
+[data-theme="light"] .text-gray-700 { color: #374151 !important; }
+[data-theme="light"] .placeholder-gray-600::placeholder { color: #9ca3b8 !important; }
+[data-theme="light"] .placeholder-gray-700::placeholder { color: #94a3b8 !important; }
+[data-theme="light"] .placeholder-gray-500::placeholder { color: #94a3b8 !important; }
+
+/* Sidebar active state */
+[data-theme="light"] aside { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
+[data-theme="light"] aside .text-gray-500 { color: #64748b !important; }
+[data-theme="light"] aside .text-gray-600 { color: #94a3b8 !important; }
+
+/* Card shadows */
+[data-theme="light"] .shadow-xl,
+[data-theme="light"] .shadow-2xl {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05) !important;
+}
+
+/* Charts tooltip */
+[data-theme="light"] .recharts-default-tooltip {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Badge colors - keep readable */
+[data-theme="light"] .bg-red-500 { background-color: #ef4444 !important; color: #ffffff !important; }
+[data-theme="light"] .bg-green-500 { background-color: #22c55e !important; }
+[data-theme="light"] .bg-yellow-500 { background-color: #eab308 !important; }
+
+/* Modal overlays */
+[data-theme="light"] .backdrop-blur-sm { backdrop-filter: blur(4px) !important; }
+
+/* Monospace / code */
+[data-theme="light"] .font-mono { color: #334155 !important; }
+
+/* Animation pulse */
+[data-theme="light"] .animate-pulse { opacity: 1 !important; }
+
+/* Border bottom on table rows */
+[data-theme="light"] .border-b { border-color: #f1f5f9 !important; }
+
+/* Fix stat cards number text */
+[data-theme="light"] .text-2xl.font-bold,
+[data-theme="light"] .text-xl.font-black,
+[data-theme="light"] .text-lg.font-bold {
+  color: inherit !important;
+}
+
+/* Login page stays dark */
+[data-theme="light"] .min-h-screen.bg-\[\#030712\] {
+  background: #030712 !important;
+  color: #f3f4f6 !important;
+}
+[data-theme="light"] .min-h-screen.bg-\[\#030712\] * {
+  color: inherit;
+}
+[data-theme="light"] .min-h-screen.bg-\[\#030712\] .text-gray-400 { color: #9ca3af !important; }
+[data-theme="light"] .min-h-screen.bg-\[\#030712\] .text-gray-500 { color: #6b7280 !important; }
+[data-theme="light"] .min-h-screen.bg-\[\#030712\] .text-gray-600 { color: #4b5563 !important; }
+[data-theme="light"] .min-h-screen.bg-\[\#030712\] input { background: rgba(255,255,255,0.05) !important; border-color: rgba(255,255,255,0.1) !important; color: #f3f4f6 !important; }

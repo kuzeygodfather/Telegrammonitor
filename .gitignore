@@ -1,0 +1,88 @@
+# ─── Secrets & Credentials ──────────────────────────
+.env
+.env.*
+!.env.example
+*.env.local
+*.env.production
+frontend/.env.local
+frontend/.env.production
+*.pem
+*.key
+vapid_private.pem
+.htpasswd
+.htaccess
+
+# ─── Telegram session files ─────────────────────────
+*.session
+*.session-journal
+*.session-shm
+*.session-wal
+*.session.bak
+sessions/
+session.session*
+backend/sessions/
+
+# ─── Backup files ───────────────────────────────────
+*.bak
+*.bak[0-9]
+*.bak.[0-9]*
+*.backup
+*.old
+*~
+*.swp
+*.tmp
+
+# ─── Python ─────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# ─── Node / Next.js ─────────────────────────────────
+node_modules/
+.next/
+frontend/.next/
+frontend/node_modules/
+frontend/out/
+out/
+dist/
+build/
+
+# ─── OS ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+desktop.ini
+
+# ─── IDE ────────────────────────────────────────────
+.idea/
+.vscode/
+*.sublime-*
+.cursor/
+
+# ─── Logs / Local data ──────────────────────────────
+*.log
+data/*.db
+data/*.log
+/var/log/
+/var/backups/
+backups/
+
+# ─── Migration / one-off scripts ────────────────────
+run_migration.py
+run_functions.py
+test_security.md
+
+# ─── Build artifacts ────────────────────────────────
+*.tsbuildinfo
+.eslintcache
+
+# ─── CI/CD secrets ──────────────────────────────────
+.github/secrets.json

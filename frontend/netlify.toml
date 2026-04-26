@@ -1,0 +1,13 @@
+[build]
+  command = "npm run build"
+  publish = "out"
+
+[build.environment]
+  NEXT_PUBLIC_SUPABASE_URL = "https://baeinghtjwxrubrenzxx.supabase.co"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhZWluZ2h0and4cnVicmVuenh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MTQzMjMsImV4cCI6MjA5MTk5MDMyM30._ExHWLlI9ldSRXmEdq5yHlYfsXrYZO8c_r7nIrVobuo"
+
+# SPA routing - tum sayfalari index.html'e yonlendir
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
