@@ -121,7 +121,7 @@ export default function PersonnelPage() {
     const exists = watched.find(w => w.keyword === nameLower);
     if (exists) { toast("Bu kisi zaten dinleniyor", "info"); return; }
 
-    await supabase.from("keywords").insert({ keyword: nameLower, category: "personnel", user_id: uid, is_active: true });
+    await supabase.from("keywords").insert({ keyword: nameLower.trim(), category: "personnel", user_id: uid, is_active: true });
     toast(`${name} dinlemeye alindi`);
     await loadWatched();
   };

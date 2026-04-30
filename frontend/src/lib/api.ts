@@ -139,7 +139,10 @@ export async function getKeywords(): Promise<Keyword[]> {
 
 export async function createKeyword(keyword: string, category = "custom") {
   const uid = getUserId();
-  return supabase.from("keywords").insert({ keyword: keyword.toLowerCase(), category, user_id: uid });
+  const kw = keyword.trim().toLowerCase();
+  const { data: existing } = await supabase.from("keywords").select("id").eq("user_id", uid).eq("keyword", kw).limit(1);
+  if (existing && existing.length > 0) return { data: existing, error: null };
+  return supabase.from("keywords").insert({ keyword: kw, category, user_id: uid });
 }
 
 export async function deleteKeyword(id: number) {

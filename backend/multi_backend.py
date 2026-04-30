@@ -54,6 +54,10 @@ def clean_session_locks():
                 pass
 
 
+# Global session lock: ayni session dosyasini birden fazla listener acmasin
+_session_locks: set = set()
+_session_locks_lock = asyncio.Lock() if hasattr(asyncio, 'Lock') else None
+
 def is_empty_or_trivial(text: str) -> bool:
     """
     Sadece tamamen bos veya anlamsiz mesajlari atla.
@@ -175,10 +179,12 @@ class UserListener:
         self._keywords = set()
         self._watched_personnel: set[str] = set()
         for r in (result.data or []):
-            if r.get("category") == "personnel":
-                self._watched_personnel.add(r["keyword"].lower())
-            elif r.get("category") != "totp":  # totp secret'lari keyword olarak kullanma
-                self._keywords.add(r["keyword"].lower())
+            kw = r["keyword"].strip().lower()
+            cat = r.get("category", "custom")
+            if cat in ("personnel", "person"):
+                self._watched_personnel.add(kw)
+            elif cat != "totp":
+                self._keywords.add(kw)
 
     def _load_groups(self):
         result = self.db.table("groups").select("id").eq("is_monitored", True).eq("user_id", self.user_id).execute()
@@ -188,7 +194,7 @@ class UserListener:
         if not self._keywords:
             return []
         text_lower = text.lower()
-        return [kw for kw in self._keywords if kw in text_lower]
+        return [kw for kw in self._keywords if kw.strip() in text_lower]
 
     def _load_auto_reply_settings(self):
         try:
@@ -357,7 +363,8 @@ class UserListener:
                     return
 
                 # Watched personnel - anlik bildirim
-                is_watched = sender_name.lower() in self._watched_personnel
+                sender_lower = sender_name.lower()
+                is_watched = any(p in sender_lower for p in self._watched_personnel) if self._watched_personnel else False
                 if is_watched and notifier.bot:
                     gtitle = await get_group_title(cid)
                     try:
@@ -595,29 +602,64 @@ class UserListener:
 
 
 async def _supervised_listener(user_data: dict, session_path: str):
-    """Listener'i supervised calistir: crash olursa otomatik yeniden baslat."""
+    """Listener'i supervised calistir: crash olursa otomatik yeniden baslat.
+    Session lock ile ayni dosyanin 2 kez acilmasini engeller."""
     from security import decrypt_secret as _decrypt
+    global _session_locks
+    username = user_data["username"]
+    
+    # Session lock kontrolu
+    if session_path in _session_locks:
+        logger.warning(f"[{username}] Session zaten aktif: {session_path} - SKIP")
+        return
+    _session_locks.add(session_path)
+    logger.info(f"[{username}] Session lock alindi: {session_path}")
+    
     backoff = 5
-    while True:
-        try:
-            listener = UserListener(
-                user_id=user_data["id"],
-                username=user_data["username"],
-                session_path=session_path,
-                api_key=_decrypt(user_data.get("api_key") or ""),
-                ai_provider=user_data.get("ai_provider"),
-                ai_model=user_data.get("ai_model"),
-            )
-            await listener.start()
-            # start() return ediyorsa client.disconnect ile bittiyse: tekrar dene
-            logger.warning(f"[{user_data['username']}] listener.start() bitti - yeniden baslatiliyor")
-        except asyncio.CancelledError:
-            raise
-        except Exception as e:
-            logger.error(f"[{user_data['username']}] listener crash: {e}", exc_info=True)
-        # Backoff: 5s -> 10s -> 30s -> 60s (max)
-        await asyncio.sleep(backoff)
-        backoff = min(backoff * 2, 60)
+    listener = None
+    try:
+        while True:
+            try:
+                # Onceki client varsa temiz kapat
+                if listener and listener.client:
+                    try:
+                        if listener.client.is_connected():
+                            await listener.client.disconnect()
+                            logger.info(f"[{username}] Eski client disconnect edildi")
+                    except Exception as dc_err:
+                        logger.warning(f"[{username}] Disconnect hatasi (onemsiz): {dc_err}")
+                    listener = None
+                    # SQLite WAL flush icin kisa bekle
+                    await asyncio.sleep(1)
+                
+                listener = UserListener(
+                    user_id=user_data["id"],
+                    username=username,
+                    session_path=session_path,
+                    api_key=_decrypt(user_data.get("api_key") or ""),
+                    ai_provider=user_data.get("ai_provider"),
+                    ai_model=user_data.get("ai_model"),
+                )
+                backoff = 5  # Basarili baglantida backoff sifirla
+                await listener.start()
+                logger.warning(f"[{username}] listener.start() bitti - yeniden baslatiliyor")
+            except asyncio.CancelledError:
+                raise
+            except Exception as e:
+                logger.error(f"[{username}] listener crash: {e}", exc_info=True)
+            # Backoff: 5s -> 10s -> 30s -> 60s (max)
+            await asyncio.sleep(backoff)
+            backoff = min(backoff * 2, 60)
+    finally:
+        # Her durumda lock'u birak
+        _session_locks.discard(session_path)
+        logger.info(f"[{username}] Session lock birakildi: {session_path}")
+        if listener and listener.client:
+            try:
+                if listener.client.is_connected():
+                    await listener.client.disconnect()
+            except Exception:
+                pass
 
 
 async def main():
@@ -643,7 +685,7 @@ async def main():
         users = []
 
     tasks = []
-    active_user_ids = set()
+    active_tasks: dict = {}  # user_id -> asyncio.Task
 
     def _resolve_session(user):
         user_session = sessions_dir / (user["username"] + ".session")
@@ -658,12 +700,12 @@ async def main():
         session_path = _resolve_session(user)
         if not session_path:
             logger.warning(f"[{user['username']}] Session dosyasi bulunamadi! Atlandi.")
-            active_user_ids.add(user["id"])
             continue
         if not _decrypt(user.get("api_key") or ""):
             logger.warning(f"[{user['username']}] API key yok - AI analiz devre disi, keyword alert aktif")
-        tasks.append(asyncio.create_task(_supervised_listener(user, session_path)))
-        active_user_ids.add(user["id"])
+        task = asyncio.create_task(_supervised_listener(user, session_path))
+        tasks.append(task)
+        active_tasks[user["id"]] = task
         logger.info(f"Kullanici baslatildi: {user['username']} (ID:{user['id']}) [supervised]")
 
     logger.info(f"Toplam {len(tasks)} kullanici dinleniyor")
@@ -675,21 +717,30 @@ async def main():
                 current = db.table("users").select(
                     "id,username,session_name,api_key,ai_provider,ai_model"
                 ).eq("is_active", True).execute().data or []
+                live_ids = {u["id"] for u in current}
+                
+                # Deaktif edilen kullanicilarin task'larini cancel et
+                for uid in list(active_tasks.keys()):
+                    if uid not in live_ids:
+                        old_task = active_tasks.pop(uid, None)
+                        if old_task and not old_task.done():
+                            old_task.cancel()
+                            logger.info(f"Deaktif kullanici task cancel edildi: uid={uid}")
+                
+                # Yeni kullanicilari baslat
                 for user in current:
-                    if user["id"] in active_user_ids:
+                    uid = user["id"]
+                    # Zaten calisan ve bitmemis task varsa skip
+                    existing_task = active_tasks.get(uid)
+                    if existing_task and not existing_task.done():
                         continue
                     session_path = _resolve_session(user)
                     if not session_path:
-                        active_user_ids.add(user["id"])
                         continue
-                    tasks.append(asyncio.create_task(_supervised_listener(user, session_path)))
-                    active_user_ids.add(user["id"])
+                    task = asyncio.create_task(_supervised_listener(user, session_path))
+                    tasks.append(task)
+                    active_tasks[uid] = task
                     logger.info(f"Yeni kullanici eklendi (supervised): {user['username']}")
-                # Aktif olmayan kullanicilari aktif setten cikar (sonradan tekrar aktif edilirse algilansin)
-                live_ids = {u["id"] for u in current}
-                stale = active_user_ids - live_ids
-                for sid in list(stale):
-                    active_user_ids.discard(sid)
             except Exception as e:
                 logger.error(f"check_new_users hatasi: {e}")
 
