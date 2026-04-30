@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Bell, BellOff, Volume2, VolumeX, Vibrate, Moon, Loader2, Check, AlertTriangle, Info, Zap, Clock, Save } from "lucide-react";
 
-const VAPID_PUBLIC_KEY = "BA6EvfdbjWWrNCdAGyT9VW1IV_R3_K10UUi8QBG5YNaA-JxWCnuZ8mKQLAeL5MgPjT3md_U9qsm6f7O1XFvK4cE";
+const VAPID_PUBLIC_KEY = "BFC1xpHgyCLK3_R9zNnbeCD9iOQroG_n4TaYzLVQmxgRJqojzDwMgb7vnQdiY01WjzfjbuiEiiGkjcwJnSNpOo0";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);

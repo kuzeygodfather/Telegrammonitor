@@ -1409,7 +1409,7 @@ async def get_ai_usage(req: UsageQuery):
 # ========== Push Notifications ==========
 from pywebpush import webpush, WebPushException
 
-VAPID_PUBLIC_KEY = "BA6EvfdbjWWrNCdAGyT9VW1IV_R3_K10UUi8QBG5YNaA-JxWCnuZ8mKQLAeL5MgPjT3md_U9qsm6f7O1XFvK4cE"
+VAPID_PUBLIC_KEY = "BFC1xpHgyCLK3_R9zNnbeCD9iOQroG_n4TaYzLVQmxgRJqojzDwMgb7vnQdiY01WjzfjbuiEiiGkjcwJnSNpOo0"
 VAPID_PRIVATE_KEY = "/opt/telegram-monitor/vapid_private.pem"
 VAPID_CLAIMS = {"sub": "mailto:kuzeygodfather@gmail.com"}
 
